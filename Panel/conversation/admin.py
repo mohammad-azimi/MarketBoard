@@ -7,6 +7,7 @@ class ConversationMessageInline(admin.TabularInline):
     model = ConversationMessage
     extra = 0
     readonly_fields = ("created_at",)
+    filter_horizontal = ("read_by",)
 
 
 @admin.register(Conversation)
@@ -28,6 +29,7 @@ class ConversationAdmin(admin.ModelAdmin):
         "created_at",
         "modified_at",
     )
+    filter_horizontal = ("members",)
     inlines = [ConversationMessageInline]
 
 
@@ -49,3 +51,4 @@ class ConversationMessageAdmin(admin.ModelAdmin):
     readonly_fields = (
         "created_at",
     )
+    filter_horizontal = ("read_by",)

@@ -36,6 +36,11 @@ class ConversationMessage(models.Model):
         related_name="conversation_messages",
         on_delete=models.CASCADE,
     )
+    read_by = models.ManyToManyField(
+        User,
+        related_name="read_conversation_messages",
+        blank=True,
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
