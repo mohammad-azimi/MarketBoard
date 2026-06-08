@@ -9,8 +9,11 @@ from .models import Category, Favorite, Item
 
 
 def items(request):
-    query = request.GET.get("query", "")
+    query = request.GET.get("query", "").strip()
     category_id = request.GET.get("category", "0")
+    condition = request.GET.get("condition", "")
+    min_price = request.GET.get("min_price", "").strip()
+    max_price = request.GET.get("max_price", "").strip()
     sort = request.GET.get("sort", "newest")
     page = request.GET.get("page", 1)
 
@@ -44,6 +47,64 @@ def items(request):
             | Q(location__icontains=query)
         )
 
+    if condition:
+        valid_conditions = [choice[0] for choice in Item.CONDITION_CHOICES]
+
+        if condition in valid_conditions:
+            items_queryset = items_queryset.filter(condition=condition)
+        else:
+            condition = ""
+
+    min_price_value = None
+    max_price_value = None
+
+    if min_price:
+        try:
+            min_price_value = float(min_price)
+            if min_price_value >= 0:
+                items_queryset = items_queryset.filter(price__gte=min_price_value)
+            else:
+                min_price = ""
+        except ValueError:
+            min_price = ""
+
+    if max_price:
+        try:
+            max_price_value = float(max_price)
+            if max_price_value >= 0:
+                items_queryset = items_queryset.filter(price__lte=max_price_value)
+            else:
+                max_price = ""
+        except ValueError:
+            max_price = ""
+
+    if (
+        min_price_value is not None
+        and max_price_value is not None
+        and min_price_value > max_price_value
+    ):
+        messages.warning(
+            request,
+            "Minimum price is higher than maximum price, so price filters were ignored.",
+        )
+        min_price = ""
+        max_price = ""
+
+        items_queryset = Item.objects.filter(is_sold=False)
+
+        if selected_category_id:
+            items_queryset = items_queryset.filter(Category_id=selected_category_id)
+
+        if query:
+            items_queryset = items_queryset.filter(
+                Q(name__icontains=query)
+                | Q(description__icontains=query)
+                | Q(location__icontains=query)
+            )
+
+        if condition:
+            items_queryset = items_queryset.filter(condition=condition)
+
     items_queryset = items_queryset.order_by(order_by)
 
     paginator = Paginator(items_queryset, 6)
@@ -55,6 +116,33 @@ def items(request):
     except EmptyPage:
         items_page = paginator.page(paginator.num_pages)
 
+    active_filters_count = 0
+
+    if query:
+        active_filters_count += 1
+
+    if selected_category_id:
+        active_filters_count += 1
+
+    if condition:
+        active_filters_count += 1
+
+    if min_price:
+        active_filters_count += 1
+
+    if max_price:
+        active_filters_count += 1
+
+    if sort != "newest":
+        active_filters_count += 1
+
+    query_params = request.GET.copy()
+
+    if "page" in query_params:
+        query_params.pop("page")
+
+    preserved_querystring = query_params.urlencode()
+
     return render(
         request,
         "item/items.html",
@@ -64,8 +152,14 @@ def items(request):
             "query": query,
             "categories": categories,
             "category_id": selected_category_id,
+            "condition": condition,
+            "condition_choices": Item.CONDITION_CHOICES,
+            "min_price": min_price,
+            "max_price": max_price,
             "sort": sort,
             "total_items": paginator.count,
+            "active_filters_count": active_filters_count,
+            "preserved_querystring": preserved_querystring,
         },
     )
 

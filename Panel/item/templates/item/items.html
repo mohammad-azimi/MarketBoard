@@ -11,7 +11,7 @@
         Browse available listings
       </h1>
       <p class="mt-4 max-w-2xl text-lg leading-8 text-slate-300">
-        Search items, filter by category, sort results, and discover active marketplace listings.
+        Search items, filter by category, condition, price range, and discover active marketplace listings.
       </p>
     </div>
 
@@ -22,8 +22,20 @@
     {% endif %}
   </div>
 
-  <div class="mt-10 grid gap-8 lg:grid-cols-[280px_1fr]">
+  <div class="mt-10 grid gap-8 lg:grid-cols-[300px_1fr]">
     <aside class="h-fit rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-5 backdrop-blur">
+      <div class="mb-5 flex items-center justify-between">
+        <h2 class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">
+          Filters
+        </h2>
+
+        {% if active_filters_count %}
+          <span class="rounded-full bg-cyan-400/10 px-3 py-1 text-xs font-bold text-cyan-300">
+            {{ active_filters_count }} active
+          </span>
+        {% endif %}
+      </div>
+
       <form method="get" action="{% url 'item:items' %}" class="space-y-4">
         <div>
           <label for="query" class="text-sm font-semibold text-slate-300">Search</label>
@@ -34,6 +46,70 @@
             placeholder="Search name, description, or location"
             class="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400"
           >
+        </div>
+
+        <div>
+          <label for="category" class="text-sm font-semibold text-slate-300">Category</label>
+          <select
+            id="category"
+            name="category"
+            class="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-400"
+          >
+            <option value="0" {% if category_id == 0 %}selected{% endif %}>All categories</option>
+
+            {% for category in categories %}
+              <option value="{{ category.id }}" {% if category.id == category_id %}selected{% endif %}>
+                {{ category.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label for="condition" class="text-sm font-semibold text-slate-300">Condition</label>
+          <select
+            id="condition"
+            name="condition"
+            class="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-400"
+          >
+            <option value="" {% if not condition %}selected{% endif %}>Any condition</option>
+
+            {% for value, label in condition_choices %}
+              <option value="{{ value }}" {% if value == condition %}selected{% endif %}>
+                {{ label }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+          <div>
+            <label for="min_price" class="text-sm font-semibold text-slate-300">Min price</label>
+            <input
+              id="min_price"
+              name="min_price"
+              type="number"
+              min="0"
+              step="0.01"
+              value="{{ min_price }}"
+              placeholder="0"
+              class="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400"
+            >
+          </div>
+
+          <div>
+            <label for="max_price" class="text-sm font-semibold text-slate-300">Max price</label>
+            <input
+              id="max_price"
+              name="max_price"
+              type="number"
+              min="0"
+              step="0.01"
+              value="{{ max_price }}"
+              placeholder="1000"
+              class="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400"
+            >
+          </div>
         </div>
 
         <div>
@@ -52,13 +128,11 @@
           </select>
         </div>
 
-        <input type="hidden" name="category" value="{{ category_id }}">
-
         <button class="w-full rounded-2xl bg-cyan-400 px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-cyan-300">
           Apply Filters
         </button>
 
-        {% if query or category_id or sort != "newest" %}
+        {% if active_filters_count %}
           <a href="{% url 'item:items' %}" class="block rounded-2xl border border-white/10 px-5 py-3 text-center text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white">
             Clear Filters
           </a>
@@ -68,11 +142,13 @@
       <div class="my-6 h-px bg-white/10"></div>
 
       <div>
-        <h2 class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Categories</h2>
+        <h2 class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">
+          Quick Categories
+        </h2>
 
         <div class="mt-4 space-y-2">
           <a
-            href="{% url 'item:items' %}{% if query or sort != 'newest' %}?{% if query %}query={{ query }}{% endif %}{% if query and sort != 'newest' %}&{% endif %}{% if sort != 'newest' %}sort={{ sort }}{% endif %}{% endif %}"
+            href="{% url 'item:items' %}"
             class="flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-semibold transition {% if category_id == 0 %}bg-cyan-400 text-slate-950{% else %}bg-white/[0.03] text-slate-300 hover:bg-white/10 hover:text-white{% endif %}"
           >
             <span>All categories</span>
@@ -80,7 +156,7 @@
 
           {% for category in categories %}
             <a
-              href="{% url 'item:items' %}?category={{ category.id }}{% if query %}&query={{ query }}{% endif %}{% if sort != 'newest' %}&sort={{ sort }}{% endif %}"
+              href="{% url 'item:items' %}?category={{ category.id }}"
               class="flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-semibold transition {% if category.id == category_id %}bg-cyan-400 text-slate-950{% else %}bg-white/[0.03] text-slate-300 hover:bg-white/10 hover:text-white{% endif %}"
             >
               <span>{{ category.name }}</span>
@@ -95,15 +171,21 @@
 
     <div>
       <div class="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-        <p class="text-sm text-slate-400">
-          Showing
-          <span class="font-bold text-white">{{ page_obj.start_index }}</span>
-          -
-          <span class="font-bold text-white">{{ page_obj.end_index }}</span>
-          of
-          <span class="font-bold text-white">{{ total_items }}</span>
-          active listing{{ total_items|pluralize }}
-        </p>
+        {% if total_items %}
+          <p class="text-sm text-slate-400">
+            Showing
+            <span class="font-bold text-white">{{ page_obj.start_index }}</span>
+            -
+            <span class="font-bold text-white">{{ page_obj.end_index }}</span>
+            of
+            <span class="font-bold text-white">{{ total_items }}</span>
+            active listing{{ total_items|pluralize }}
+          </p>
+        {% else %}
+          <p class="text-sm text-slate-400">
+            Showing <span class="font-bold text-white">0</span> active listings
+          </p>
+        {% endif %}
 
         {% if page_obj.has_other_pages %}
           <p class="text-sm text-slate-500">
@@ -165,9 +247,10 @@
         {% empty %}
           <div class="col-span-full rounded-[1.5rem] border border-dashed border-white/15 bg-white/[0.03] p-12 text-center">
             <h3 class="text-2xl font-black text-white">No matching listings</h3>
-            <p class="mt-3 text-slate-400">Try changing your search, sort option, or category filter.</p>
+            <p class="mt-3 text-slate-400">Try changing your search, category, condition, price range, or sort option.</p>
+
             <a href="{% url 'item:items' %}" class="mt-6 inline-flex rounded-full bg-cyan-400 px-6 py-3 text-sm font-bold text-slate-950 transition hover:bg-cyan-300">
-              Reset Search
+              Reset Filters
             </a>
           </div>
         {% endfor %}
@@ -178,7 +261,7 @@
           <div>
             {% if page_obj.has_previous %}
               <a
-                href="?page={{ page_obj.previous_page_number }}{% if query %}&query={{ query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}"
+                href="?page={{ page_obj.previous_page_number }}{% if preserved_querystring %}&{{ preserved_querystring }}{% endif %}"
                 class="inline-flex rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10"
               >
                 ← Previous
@@ -198,7 +281,7 @@
                 </span>
               {% else %}
                 <a
-                  href="?page={{ page_number }}{% if query %}&query={{ query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}"
+                  href="?page={{ page_number }}{% if preserved_querystring %}&{{ preserved_querystring }}{% endif %}"
                   class="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-sm font-bold text-white transition hover:bg-white/10"
                 >
                   {{ page_number }}
@@ -210,7 +293,7 @@
           <div>
             {% if page_obj.has_next %}
               <a
-                href="?page={{ page_obj.next_page_number }}{% if query %}&query={{ query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}"
+                href="?page={{ page_obj.next_page_number }}{% if preserved_querystring %}&{{ preserved_querystring }}{% endif %}"
                 class="inline-flex rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10"
               >
                 Next →
