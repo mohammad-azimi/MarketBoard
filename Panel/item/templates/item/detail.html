@@ -71,6 +71,7 @@
 
         <div class="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3">
           <span class="text-slate-400">Status</span>
+
           {% if item.is_sold %}
             <span class="font-semibold text-rose-300">Sold</span>
           {% else %}
@@ -101,6 +102,7 @@
           {% if request.user.is_authenticated %}
             <form method="post" action="{% url 'item:toggle_favorite' item.id %}">
               {% csrf_token %}
+
               <button class="w-full rounded-2xl border border-cyan-400/30 bg-cyan-400/10 px-5 py-4 text-sm font-bold text-cyan-200 transition hover:bg-cyan-400/20">
                 {% if is_favorite %}
                   Remove from Saved Items
@@ -109,15 +111,19 @@
                 {% endif %}
               </button>
             </form>
+
+            <a href="{% url 'conversation:new' item.id %}" class="w-full rounded-2xl bg-cyan-400 px-5 py-4 text-center text-sm font-bold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300">
+              Contact Seller
+            </a>
           {% else %}
             <a href="{% url 'core:login' %}" class="w-full rounded-2xl border border-cyan-400/30 bg-cyan-400/10 px-5 py-4 text-center text-sm font-bold text-cyan-200 transition hover:bg-cyan-400/20">
               Log in to save this listing
             </a>
-          {% endif %}
 
-          <button class="w-full rounded-2xl bg-cyan-400 px-5 py-4 text-sm font-bold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300">
-            Contact Seller
-          </button>
+            <a href="{% url 'core:login' %}" class="w-full rounded-2xl bg-cyan-400 px-5 py-4 text-center text-sm font-bold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300">
+              Log in to contact seller
+            </a>
+          {% endif %}
         </div>
       {% endif %}
     </aside>
@@ -157,6 +163,7 @@
           <div class="p-5">
             <div class="flex items-start justify-between gap-3">
               <h3 class="text-lg font-bold text-white group-hover:text-cyan-300">{{ item.name }}</h3>
+
               <span class="rounded-full bg-cyan-400/10 px-3 py-1 text-sm font-bold text-cyan-300">
                 ${{ item.price }}
               </span>

@@ -1,0 +1,88 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Conversation{% endblock %}
+
+{% block content %}
+<section class="mx-auto max-w-5xl px-6 py-14">
+  <div class="mb-8">
+    <a href="{% url 'conversation:inbox' %}" class="text-sm font-semibold text-cyan-300 hover:text-cyan-200">
+      ← Back to inbox
+    </a>
+  </div>
+
+  <div class="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
+    <div class="grid gap-5 md:grid-cols-[160px_1fr]">
+      <div class="aspect-[4/3] overflow-hidden rounded-2xl bg-slate-900">
+        {% if conversation.item.image %}
+          <img src="{{ conversation.item.image.url }}" alt="{{ conversation.item.name }}" class="h-full w-full object-cover">
+        {% else %}
+          <div class="flex h-full w-full items-center justify-center text-sm text-slate-500">
+            No image
+          </div>
+        {% endif %}
+      </div>
+
+      <div>
+        <p class="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-300">
+          Conversation about
+        </p>
+
+        <h1 class="mt-2 text-3xl font-black text-white">
+          {{ conversation.item.name }}
+        </h1>
+
+        <p class="mt-3 text-2xl font-black text-cyan-300">
+          ${{ conversation.item.price }}
+        </p>
+
+        <a href="{% url 'item:detail' conversation.item.id %}" class="mt-4 inline-flex text-sm font-semibold text-cyan-300 hover:text-cyan-200">
+          View listing →
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
+    <h2 class="text-2xl font-black text-white">Messages</h2>
+
+    <div class="mt-6 space-y-4">
+      {% for message in conversation.messages.all %}
+        <div class="flex {% if message.created_by == request.user %}justify-end{% else %}justify-start{% endif %}">
+          <div class="max-w-[80%] rounded-3xl px-5 py-4 {% if message.created_by == request.user %}bg-cyan-400 text-slate-950{% else %}bg-slate-900/80 text-slate-100{% endif %}">
+            <p class="text-sm font-bold">
+              {{ message.created_by.username }}
+            </p>
+
+            <p class="mt-2 text-sm leading-6">
+              {{ message.content }}
+            </p>
+
+            <p class="mt-3 text-xs opacity-70">
+              {{ message.created_at|date:"M d, Y H:i" }}
+            </p>
+          </div>
+        </div>
+      {% empty %}
+        <div class="rounded-2xl border border-dashed border-white/15 bg-white/[0.03] p-8 text-center">
+          <p class="text-slate-400">No messages yet.</p>
+        </div>
+      {% endfor %}
+    </div>
+
+    <form method="post" action="." class="mt-8 space-y-4">
+      {% csrf_token %}
+
+      <div>
+        <label class="mb-2 block text-sm font-bold text-slate-300" for="{{ form.content.id_for_label }}">
+          Reply
+        </label>
+        {{ form.content }}
+      </div>
+
+      <button class="rounded-full bg-cyan-400 px-7 py-4 text-sm font-bold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300">
+        Send Reply
+      </button>
+    </form>
+  </div>
+</section>
+{% endblock %}

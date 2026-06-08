@@ -22,6 +22,7 @@
             <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-400 text-lg font-black text-slate-950 shadow-lg shadow-cyan-500/20">
               MB
             </div>
+
             <div>
               <p class="text-lg font-bold tracking-tight text-white">MarketBoard</p>
               <p class="text-xs text-slate-400">Django classified ads marketplace</p>
@@ -44,6 +45,10 @@
 
               <a href="{% url 'dashboard:index' %}" class="rounded-full px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/10 hover:text-white">
                 Dashboard
+              </a>
+
+              <a href="{% url 'conversation:inbox' %}" class="rounded-full px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/10 hover:text-white">
+                Inbox
               </a>
 
               <form method="post" action="{% url 'core:logout' %}">
@@ -81,6 +86,7 @@
 
           <div>
             <h3 class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Navigation</h3>
+
             <div class="mt-4 flex flex-col gap-2 text-sm text-slate-300">
               <a href="/" class="hover:text-cyan-300">Home</a>
               <a href="{% url 'item:items' %}" class="hover:text-cyan-300">Browse Items</a>
@@ -88,6 +94,7 @@
 
               {% if request.user.is_authenticated %}
                 <a href="{% url 'dashboard:index' %}" class="hover:text-cyan-300">Dashboard</a>
+                <a href="{% url 'conversation:inbox' %}" class="hover:text-cyan-300">Inbox</a>
               {% endif %}
             </div>
           </div>
