@@ -17,6 +17,7 @@ class ItemAdmin(admin.ModelAdmin):
         "price",
         "condition",
         "location",
+        "views_count",
         "is_sold",
         "created_by",
         "created_at",
@@ -34,6 +35,7 @@ class ItemAdmin(admin.ModelAdmin):
         "created_by__username",
     )
     readonly_fields = (
+        "views_count",
         "created_at",
         "updated_at",
     )

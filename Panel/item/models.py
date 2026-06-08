@@ -42,6 +42,7 @@ class Item(models.Model):
     location = models.CharField(max_length=120, blank=True, default="")
     image = models.ImageField(upload_to="item_images", blank=True, null=True)
     is_sold = models.BooleanField(default=False)
+    views_count = models.PositiveIntegerField(default=0)
     created_by = models.ForeignKey(
         User,
         related_name="items",

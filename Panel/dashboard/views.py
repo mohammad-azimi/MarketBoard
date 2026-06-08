@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
 from django.shortcuts import render
 
 from item.models import Item
@@ -18,6 +19,9 @@ def index(request):
     active_count = items.filter(is_sold=False).count()
     sold_count = items.filter(is_sold=True).count()
     saved_count = favorite_items.count()
+    total_views = items.aggregate(total=Sum("views_count"))["total"] or 0
+
+    most_viewed_item = items.order_by("-views_count").first()
 
     return render(
         request,
@@ -29,5 +33,7 @@ def index(request):
             "active_count": active_count,
             "sold_count": sold_count,
             "saved_count": saved_count,
+            "total_views": total_views,
+            "most_viewed_item": most_viewed_item,
         },
     )

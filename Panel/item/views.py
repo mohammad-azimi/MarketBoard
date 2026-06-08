@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.db.models import Q
+from django.db.models import F, Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import EditItemForm, NewItemForm
@@ -20,6 +20,7 @@ def items(request):
         "price_low": "price",
         "price_high": "-price",
         "name": "name",
+        "popular": "-views_count",
     }
 
     order_by = sort_options.get(sort, "-created_at")
@@ -71,6 +72,10 @@ def items(request):
 
 def detail(request, pk):
     item = get_object_or_404(Item, pk=pk)
+
+    if not request.user.is_authenticated or request.user != item.created_by:
+        Item.objects.filter(pk=pk).update(views_count=F("views_count") + 1)
+        item.refresh_from_db(fields=["views_count"])
 
     related_items = (
         Item.objects.filter(Category=item.Category, is_sold=False)
