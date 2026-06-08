@@ -1,34 +1,86 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Log IN{% endblock %}
+{% block title %}Log In{% endblock %}
 
 {% block content %}
-    <div class="w-1/2 my-6 mx-auto p-6 bg-gray-100 rounded-xl">
-        <h1 class="mb-6 text-3xl">Log IN</h1>
+<section class="mx-auto grid min-h-[calc(100vh-180px)] max-w-7xl items-center gap-10 px-6 py-14 lg:grid-cols-[0.9fr_1.1fr]">
+  <div>
+    <p class="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300">Welcome Back</p>
+    <h1 class="mt-4 max-w-2xl text-5xl font-black tracking-tight text-white md:text-6xl">
+      Log in and manage your marketplace listings.
+    </h1>
+    <p class="mt-6 max-w-xl text-lg leading-8 text-slate-300">
+      Access your dashboard, publish new items, and keep track of your active and sold listings.
+    </p>
 
-        <form method="post" action=".">
-            {% csrf_token %}
+    <div class="mt-8 grid gap-4 sm:grid-cols-2">
+      <div class="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
+        <p class="text-sm text-slate-400">Dashboard</p>
+        <p class="mt-2 font-bold text-white">Manage your own ads</p>
+      </div>
 
-            <div class="mb-3 ">
-                <label class="inline-block mb-2">Username</label><br>
-                {{ form.username }}
-            </div>
-            
-            <div class="mb-3 ">
-                <label class="inline-block mb-2">Password</label><br>
-                {{ form.password }}
-            </div>
-
-            {% if form.errors or form.non_field_errors %}
-            <div class="mb-3 p-6 bg-red-100 rounded-xl">
-                {% for field in form %}
-                    {{ field.errors }}
-                {% endfor %}
-
-                {{ form.non_field_errors }}
-            </div>
-            {% endif %}
-            <button class="py-4 px-8 text-lg bg-teal-500 hover:bg-teal-700 rounded-xl text-white">Submit</button>
-        </form>
+      <div class="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
+        <p class="text-sm text-slate-400">Marketplace</p>
+        <p class="mt-2 font-bold text-white">Browse active listings</p>
+      </div>
     </div>
+  </div>
+
+  <div class="rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 backdrop-blur">
+    <div>
+      <p class="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300">Account</p>
+      <h2 class="mt-3 text-4xl font-black tracking-tight text-white">Log In</h2>
+      <p class="mt-4 text-slate-400">
+        Enter your username and password to continue.
+      </p>
+    </div>
+
+    <form method="post" action="." class="mt-8 space-y-6">
+      {% csrf_token %}
+
+      {% if next %}
+        <input type="hidden" name="next" value="{{ next }}">
+      {% endif %}
+
+      {% if form.non_field_errors %}
+        <div class="rounded-2xl border border-rose-400/30 bg-rose-500/10 p-4 text-sm text-rose-200">
+          {{ form.non_field_errors }}
+        </div>
+      {% endif %}
+
+      <div>
+        <label class="mb-2 block text-sm font-bold text-slate-300" for="{{ form.username.id_for_label }}">
+          Username
+        </label>
+        {{ form.username }}
+
+        {% if form.username.errors %}
+          <div class="mt-2 text-sm text-rose-300">{{ form.username.errors }}</div>
+        {% endif %}
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-bold text-slate-300" for="{{ form.password.id_for_label }}">
+          Password
+        </label>
+        {{ form.password }}
+
+        {% if form.password.errors %}
+          <div class="mt-2 text-sm text-rose-300">{{ form.password.errors }}</div>
+        {% endif %}
+      </div>
+
+      <button class="w-full rounded-full bg-cyan-400 px-7 py-4 text-sm font-bold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300">
+        Log In
+      </button>
+    </form>
+
+    <p class="mt-6 text-center text-sm text-slate-400">
+      Do not have an account?
+      <a href="{% url 'core:signup' %}" class="font-semibold text-cyan-300 hover:text-cyan-200">
+        Create one
+      </a>
+    </p>
+  </div>
+</section>
 {% endblock %}

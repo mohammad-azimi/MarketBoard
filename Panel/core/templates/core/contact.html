@@ -1,7 +1,51 @@
 {% extends 'core/base.html' %}
 
-{%block title%} Contact {%endblock%}
+{% block title %}Contact{% endblock %}
 
 {% block content %}
-    <h1>The Contact Page</h1>
+<section class="mx-auto max-w-7xl px-6 py-16">
+  <div class="grid items-center gap-10 lg:grid-cols-[1fr_0.9fr]">
+    <div>
+      <p class="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300">Contact</p>
+      <h1 class="mt-4 max-w-3xl text-5xl font-black tracking-tight text-white md:text-6xl">
+        Get in touch about MarketBoard.
+      </h1>
+      <p class="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
+        MarketBoard is a Django-based classified ads marketplace project focused on user authentication,
+        item listings, search, filtering, dashboard management, and clean portfolio presentation.
+      </p>
+
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+        <a href="{% url 'item:items' %}" class="rounded-full bg-cyan-400 px-7 py-4 text-center text-sm font-bold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300">
+          Browse Marketplace
+        </a>
+
+        <a href="https://github.com/mohammad-azimi/MarketBoard" target="_blank" rel="noreferrer" class="rounded-full border border-white/10 bg-white/5 px-7 py-4 text-center text-sm font-bold text-white transition hover:bg-white/10">
+          View GitHub Repo
+        </a>
+      </div>
+    </div>
+
+    <div class="rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 backdrop-blur">
+      <p class="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300">Project Info</p>
+
+      <div class="mt-6 grid gap-4">
+        <div class="rounded-2xl border border-white/10 bg-slate-950/60 p-5">
+          <p class="text-sm text-slate-400">Type</p>
+          <p class="mt-1 text-lg font-bold text-white">Full-stack Django marketplace</p>
+        </div>
+
+        <div class="rounded-2xl border border-white/10 bg-slate-950/60 p-5">
+          <p class="text-sm text-slate-400">Main Features</p>
+          <p class="mt-1 text-lg font-bold text-white">Auth, listings, search, filters, dashboard</p>
+        </div>
+
+        <div class="rounded-2xl border border-white/10 bg-slate-950/60 p-5">
+          <p class="text-sm text-slate-400">Tech Stack</p>
+          <p class="mt-1 text-lg font-bold text-white">Python, Django, SQLite, Tailwind CSS</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock %}
