@@ -3,7 +3,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import EditItemForm, NewItemForm
-from .models import Category, Item
+from .models import Category, Favorite, Item
 
 
 def items(request):
@@ -64,12 +64,21 @@ def detail(request, pk):
         .order_by("-created_at")[:3]
     )
 
+    is_favorite = False
+
+    if request.user.is_authenticated:
+        is_favorite = Favorite.objects.filter(
+            user=request.user,
+            item=item,
+        ).exists()
+
     return render(
         request,
         "item/detail.html",
         {
             "item": item,
             "related_items": related_items,
+            "is_favorite": is_favorite,
         },
     )
 
@@ -131,5 +140,23 @@ def delete(request, pk):
     if request.method == "POST":
         item.delete()
         return redirect("dashboard:index")
+
+    return redirect("item:detail", pk=pk)
+
+
+@login_required
+def toggle_favorite(request, pk):
+    item = get_object_or_404(Item, pk=pk)
+
+    if item.created_by == request.user:
+        return redirect("item:detail", pk=pk)
+
+    favorite, created = Favorite.objects.get_or_create(
+        user=request.user,
+        item=item,
+    )
+
+    if not created:
+        favorite.delete()
 
     return redirect("item:detail", pk=pk)

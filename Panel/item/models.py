@@ -55,3 +55,29 @@ class Item(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Favorite(models.Model):
+    user = models.ForeignKey(
+        User,
+        related_name="favorites",
+        on_delete=models.CASCADE,
+    )
+    item = models.ForeignKey(
+        Item,
+        related_name="favorited_by",
+        on_delete=models.CASCADE,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-created_at",)
+        constraints = [
+            models.UniqueConstraint(
+                fields=("user", "item"),
+                name="unique_user_favorite_item",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.user.username} saved {self.item.name}"

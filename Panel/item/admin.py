@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, Item
+from .models import Category, Favorite, Item
 
 
 @admin.register(Category)
@@ -36,4 +36,23 @@ class ItemAdmin(admin.ModelAdmin):
     readonly_fields = (
         "created_at",
         "updated_at",
+    )
+
+
+@admin.register(Favorite)
+class FavoriteAdmin(admin.ModelAdmin):
+    list_display = (
+        "user",
+        "item",
+        "created_at",
+    )
+    list_filter = (
+        "created_at",
+    )
+    search_fields = (
+        "user__username",
+        "item__name",
+    )
+    readonly_fields = (
+        "created_at",
     )
