@@ -32,10 +32,12 @@ def signup(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
+
             messages.success(
                 request,
                 "Account created successfully. Welcome to MarketBoard.",
             )
+
             return redirect("item:items")
     else:
         form = SignupForm()
@@ -46,4 +48,28 @@ def signup(request):
         {
             "form": form,
         },
+    )
+
+
+def permission_denied_view(request, exception=None):
+    return render(
+        request,
+        "core/403.html",
+        status=403,
+    )
+
+
+def page_not_found_view(request, exception=None):
+    return render(
+        request,
+        "core/404.html",
+        status=404,
+    )
+
+
+def server_error_view(request):
+    return render(
+        request,
+        "core/500.html",
+        status=500,
     )
