@@ -9,6 +9,7 @@ app_name = "item"
 urlpatterns = [
     path("", views.items, name="items"),
     path("new/", views.new, name="new"),
+    path("seller/<str:username>/", views.seller_profile, name="seller_profile"),
     path("<int:pk>/favorite/", views.toggle_favorite, name="toggle_favorite"),
     path("<int:pk>/", views.detail, name="detail"),
     path("<int:pk>/edit/", views.edit, name="edit"),

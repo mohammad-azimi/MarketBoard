@@ -1,7 +1,8 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.db.models import F, Q
+from django.db.models import F, Q, Sum
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import EditItemForm, NewItemForm
@@ -61,6 +62,7 @@ def items(request):
     if min_price:
         try:
             min_price_value = float(min_price)
+
             if min_price_value >= 0:
                 items_queryset = items_queryset.filter(price__gte=min_price_value)
             else:
@@ -71,6 +73,7 @@ def items(request):
     if max_price:
         try:
             max_price_value = float(max_price)
+
             if max_price_value >= 0:
                 items_queryset = items_queryset.filter(price__lte=max_price_value)
             else:
@@ -87,6 +90,7 @@ def items(request):
             request,
             "Minimum price is higher than maximum price, so price filters were ignored.",
         )
+
         min_price = ""
         max_price = ""
 
@@ -192,6 +196,32 @@ def detail(request, pk):
             "item": item,
             "related_items": related_items,
             "is_favorite": is_favorite,
+        },
+    )
+
+
+def seller_profile(request, username):
+    seller = get_object_or_404(User, username=username)
+
+    seller_items = Item.objects.filter(created_by=seller).order_by("-created_at")
+    active_items = seller_items.filter(is_sold=False)
+    sold_items = seller_items.filter(is_sold=True)
+
+    total_items = seller_items.count()
+    active_count = active_items.count()
+    sold_count = sold_items.count()
+    total_views = seller_items.aggregate(total=Sum("views_count"))["total"] or 0
+
+    return render(
+        request,
+        "item/seller_profile.html",
+        {
+            "seller": seller,
+            "items": active_items,
+            "total_items": total_items,
+            "active_count": active_count,
+            "sold_count": sold_count,
+            "total_views": total_views,
         },
     )
 
