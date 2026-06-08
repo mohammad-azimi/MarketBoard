@@ -141,7 +141,13 @@ def delete(request, pk):
         item.delete()
         return redirect("dashboard:index")
 
-    return redirect("item:detail", pk=pk)
+    return render(
+        request,
+        "item/confirm_delete.html",
+        {
+            "item": item,
+        },
+    )
 
 
 @login_required
