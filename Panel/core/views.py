@@ -1,5 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth import login
+from django.contrib.auth.models import User
+from django.db.models import Sum
 from django.shortcuts import redirect, render
 
 from item.models import Category, Item
@@ -8,8 +10,26 @@ from .forms import SignupForm
 
 
 def index(request):
-    items = Item.objects.filter(is_sold=False).order_by("-created_at")[:6]
+    items = (
+        Item.objects.filter(is_sold=False)
+        .select_related("Category", "created_by")
+        .order_by("-created_at")[:6]
+    )
+
+    popular_items = (
+        Item.objects.filter(is_sold=False)
+        .select_related("Category", "created_by")
+        .order_by("-views_count", "-created_at")[:3]
+    )
+
     categories = Category.objects.all()
+
+    total_listings = Item.objects.count()
+    active_listings = Item.objects.filter(is_sold=False).count()
+    sold_listings = Item.objects.filter(is_sold=True).count()
+    total_categories = categories.count()
+    total_users = User.objects.count()
+    total_views = Item.objects.aggregate(total=Sum("views_count"))["total"] or 0
 
     return render(
         request,
@@ -17,6 +37,13 @@ def index(request):
         {
             "categories": categories,
             "items": items,
+            "popular_items": popular_items,
+            "total_listings": total_listings,
+            "active_listings": active_listings,
+            "sold_listings": sold_listings,
+            "total_categories": total_categories,
+            "total_users": total_users,
+            "total_views": total_views,
         },
     )
 
