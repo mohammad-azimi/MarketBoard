@@ -1,26 +1,106 @@
 {% extends 'core/base.html' %}
 
-{%block title%} Dashboard {%endblock%}
+{% block title %}Dashboard{% endblock %}
 
 {% block content %}
-    <div class="mt-6 px-6 py-12 bg-gray-100 rounded-xl">
-        <h2 class="mb-12 text-2xl text-center">My Items</h2>
-        
-        <div class="grid grid-cols-3 gap-3">
-            {% for item in items %}
-                <div>
-                    <a href="{% url 'item:detail' item.id %}">
-                        <div>
-                            <img src="{{ item.image.url }}" class="rounded-t-xl">
-                        </div>
-
-                        <div class="p-6 bg-white rounded-b-xl">
-                            <h2 class="text-2xl">{{ item.name }}</h2>
-                            <p class="text-gray-500">Price: {{ item.price }}</p>
-                        </div>
-                    </a>
-                </div>
-            {% endfor %}
-        </div>
+<section class="mx-auto max-w-7xl px-6 py-14">
+  <div class="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+    <div>
+      <p class="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300">Dashboard</p>
+      <h1 class="mt-3 text-4xl font-black tracking-tight text-white md:text-6xl">
+        Manage your listings
+      </h1>
+      <p class="mt-4 max-w-2xl text-lg leading-8 text-slate-300">
+        Track your marketplace activity and update the items you have published.
+      </p>
     </div>
+
+    <a href="{% url 'item:new' %}" class="rounded-full bg-cyan-400 px-6 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300">
+      Create Listing
+    </a>
+  </div>
+
+  <div class="mt-10 grid gap-4 md:grid-cols-3">
+    <div class="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-6">
+      <p class="text-sm font-semibold text-slate-400">Total Listings</p>
+      <p class="mt-3 text-4xl font-black text-white">{{ total_count }}</p>
+    </div>
+
+    <div class="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-6">
+      <p class="text-sm font-semibold text-slate-400">Active Listings</p>
+      <p class="mt-3 text-4xl font-black text-emerald-300">{{ active_count }}</p>
+    </div>
+
+    <div class="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-6">
+      <p class="text-sm font-semibold text-slate-400">Sold Listings</p>
+      <p class="mt-3 text-4xl font-black text-cyan-300">{{ sold_count }}</p>
+    </div>
+  </div>
+
+  <div class="mt-10">
+    <div class="mb-6 flex items-center justify-between">
+      <h2 class="text-2xl font-black text-white">Your Items</h2>
+      <a href="{% url 'item:items' %}" class="text-sm font-semibold text-cyan-300 hover:text-cyan-200">
+        Browse marketplace →
+      </a>
+    </div>
+
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {% for item in items %}
+        <div class="overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/[0.04]">
+          <a href="{% url 'item:detail' item.id %}" class="group block">
+            <div class="aspect-[4/3] overflow-hidden bg-slate-900">
+              {% if item.image %}
+                <img src="{{ item.image.url }}" alt="{{ item.name }}" class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
+              {% else %}
+                <div class="flex h-full w-full items-center justify-center text-sm text-slate-500">
+                  No image
+                </div>
+              {% endif %}
+            </div>
+          </a>
+
+          <div class="p-5">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <h3 class="text-lg font-bold text-white">{{ item.name }}</h3>
+                <p class="mt-2 text-sm text-slate-400">{{ item.Category.name }}</p>
+              </div>
+
+              {% if item.is_sold %}
+                <span class="rounded-full bg-rose-500/10 px-3 py-1 text-xs font-bold text-rose-300">
+                  Sold
+                </span>
+              {% else %}
+                <span class="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-300">
+                  Active
+                </span>
+              {% endif %}
+            </div>
+
+            <p class="mt-4 text-xl font-black text-cyan-300">${{ item.price }}</p>
+
+            <div class="mt-5 flex gap-3">
+              <a href="{% url 'item:detail' item.id %}" class="flex-1 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-center text-sm font-bold text-white transition hover:bg-white/10">
+                View
+              </a>
+
+              <a href="{% url 'item:edit' item.id %}" class="flex-1 rounded-2xl bg-cyan-400 px-4 py-3 text-center text-sm font-bold text-slate-950 transition hover:bg-cyan-300">
+                Edit
+              </a>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-span-full rounded-[1.5rem] border border-dashed border-white/15 bg-white/[0.03] p-12 text-center">
+          <h3 class="text-2xl font-black text-white">You have no listings yet</h3>
+          <p class="mt-3 text-slate-400">Create your first marketplace item and manage it from here.</p>
+          <a href="{% url 'item:new' %}" class="mt-6 inline-flex rounded-full bg-cyan-400 px-6 py-3 text-sm font-bold text-slate-950 transition hover:bg-cyan-300">
+            Create First Listing
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
 {% endblock %}

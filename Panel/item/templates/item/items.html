@@ -1,59 +1,134 @@
 {% extends 'core/base.html' %}
 
-{% block title %}items{% endblock %}
+{% block title %}Browse Items{% endblock %}
 
 {% block content %}
+<section class="mx-auto max-w-7xl px-6 py-14">
+  <div class="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+    <div>
+      <p class="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300">Marketplace</p>
+      <h1 class="mt-3 text-4xl font-black tracking-tight text-white md:text-6xl">
+        Browse available listings
+      </h1>
+      <p class="mt-4 max-w-2xl text-lg leading-8 text-slate-300">
+        Search items, filter by category, and discover active marketplace listings.
+      </p>
+    </div>
 
-    <div class="pb-6 grid grid-cols-4 gap-4 bg-gray-100">
-        <div class="col-span-1">
-            <form method="get" action="{% url 'item:items' %}">
-                <input name="query" class="w-full py-4 px-6 border rounded-xl" type="text" value="{{ query }}" placeholder="Find a bike, a chair or a car...">
+    {% if request.user.is_authenticated %}
+      <a href="{% url 'item:new' %}" class="rounded-full bg-cyan-400 px-6 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300">
+        Create Listing
+      </a>
+    {% endif %}
+  </div>
 
-                <button class="mt-2 py-4 px-8 text-lg bg-teal-500 text-white rounded-xl">Search</button>
-            </form>
-
-            <hr class="my-6">
-
-            <p class="font-semibold">Categories</p>
-
-            <ul>
-                {% for category in categories %}
-                    <li class="py-2 px-2 rounded-xl{% if category.id == category_id %} bg-gray-200{% endif %}">
-                        <a href="{% url 'item:items' %}?query={{ query }}&category={{ category.id }}">{{ category.name }}</a>
-                    </li>
-                {% endfor %}
-            </ul>
-
-            <hr class="my-6">
-
-            <p class="font-semibold">Clear Filters</p>
-
-            <ul>
-                <li>
-                    <a href="{% url 'item:items' %}" class="mt-2 py-4 px-8 inline-block bg-yellow-500 text-lg rounded-xl text-white">Clear</a>
-                </li>
-            </ul>
-
+  <div class="mt-10 grid gap-8 lg:grid-cols-[280px_1fr]">
+    <aside class="h-fit rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-5 backdrop-blur">
+      <form method="get" action="{% url 'item:items' %}" class="space-y-4">
+        <div>
+          <label for="query" class="text-sm font-semibold text-slate-300">Search</label>
+          <input
+            id="query"
+            name="query"
+            value="{{ query }}"
+            placeholder="Search by name or description"
+            class="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400"
+          >
         </div>
 
-        <div class="col-span-3">
-            <div class="grid grid-cols-3 gap-3">
-            {% for item in items %}
-                <div>
-                    <a href="{% url 'item:detail' item.id %}">
-                        <div>
-                            <img src="{{ item.image.url }}" class="rounded-t-xl">
-                        </div>
+        <input type="hidden" name="category" value="{{ category_id }}">
 
-                        <div class="p-6 bg-white rounded-b-xl">
-                            <h2 class="text-2xl">{{ item.name }}</h2>
-                            <p class="text-gray-500">Price: {{ item.price }}</p>
-                        </div>
-                    </a>
+        <button class="w-full rounded-2xl bg-cyan-400 px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-cyan-300">
+          Search Listings
+        </button>
+
+        {% if query or category_id %}
+          <a href="{% url 'item:items' %}" class="block rounded-2xl border border-white/10 px-5 py-3 text-center text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white">
+            Clear Filters
+          </a>
+        {% endif %}
+      </form>
+
+      <div class="my-6 h-px bg-white/10"></div>
+
+      <div>
+        <h2 class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Categories</h2>
+
+        <div class="mt-4 space-y-2">
+          <a
+            href="{% url 'item:items' %}{% if query %}?query={{ query }}{% endif %}"
+            class="flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-semibold transition {% if category_id == 0 %}bg-cyan-400 text-slate-950{% else %}bg-white/[0.03] text-slate-300 hover:bg-white/10 hover:text-white{% endif %}"
+          >
+            <span>All categories</span>
+          </a>
+
+          {% for category in categories %}
+            <a
+              href="{% url 'item:items' %}?category={{ category.id }}{% if query %}&query={{ query }}{% endif %}"
+              class="flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-semibold transition {% if category.id == category_id %}bg-cyan-400 text-slate-950{% else %}bg-white/[0.03] text-slate-300 hover:bg-white/10 hover:text-white{% endif %}"
+            >
+              <span>{{ category.name }}</span>
+              <span class="text-xs opacity-70">{{ category.items.count }}</span>
+            </a>
+          {% empty %}
+            <p class="text-sm text-slate-500">No categories yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </aside>
+
+    <div>
+      <div class="mb-6 flex items-center justify-between">
+        <p class="text-sm text-slate-400">
+          Showing <span class="font-bold text-white">{{ items|length }}</span> active listing{{ items|length|pluralize }}
+        </p>
+      </div>
+
+      <div class="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        {% for item in items %}
+          <a href="{% url 'item:detail' item.id %}" class="group overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/[0.04] transition hover:-translate-y-1 hover:border-cyan-400/40 hover:bg-white/[0.07]">
+            <div class="aspect-[4/3] overflow-hidden bg-slate-900">
+              {% if item.image %}
+                <img src="{{ item.image.url }}" alt="{{ item.name }}" class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
+              {% else %}
+                <div class="flex h-full w-full items-center justify-center text-sm text-slate-500">
+                  No image
                 </div>
-            {% endfor %}
-        </div>
+              {% endif %}
+            </div>
+
+            <div class="p-5">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <h3 class="text-lg font-bold text-white group-hover:text-cyan-300">{{ item.name }}</h3>
+                  <p class="mt-2 text-sm text-slate-400">{{ item.Category.name }}</p>
+                </div>
+
+                <span class="rounded-full bg-cyan-400/10 px-3 py-1 text-sm font-bold text-cyan-300">
+                  ${{ item.price }}
+                </span>
+              </div>
+
+              <p class="mt-4 line-clamp-2 text-sm leading-6 text-slate-400">
+                {% if item.description %}
+                  {{ item.description }}
+                {% else %}
+                  No description provided.
+                {% endif %}
+              </p>
+            </div>
+          </a>
+        {% empty %}
+          <div class="col-span-full rounded-[1.5rem] border border-dashed border-white/15 bg-white/[0.03] p-12 text-center">
+            <h3 class="text-2xl font-black text-white">No matching listings</h3>
+            <p class="mt-3 text-slate-400">Try changing your search or category filter.</p>
+            <a href="{% url 'item:items' %}" class="mt-6 inline-flex rounded-full bg-cyan-400 px-6 py-3 text-sm font-bold text-slate-950 transition hover:bg-cyan-300">
+              Reset Search
+            </a>
+          </div>
+        {% endfor %}
+      </div>
     </div>
-        </div>
-    </div>
+  </div>
+</section>
 {% endblock %}
