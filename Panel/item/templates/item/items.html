@@ -93,10 +93,22 @@
     </aside>
 
     <div>
-      <div class="mb-6 flex items-center justify-between">
+      <div class="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
         <p class="text-sm text-slate-400">
-          Showing <span class="font-bold text-white">{{ items|length }}</span> active listing{{ items|length|pluralize }}
+          Showing
+          <span class="font-bold text-white">{{ page_obj.start_index }}</span>
+          -
+          <span class="font-bold text-white">{{ page_obj.end_index }}</span>
+          of
+          <span class="font-bold text-white">{{ total_items }}</span>
+          active listing{{ total_items|pluralize }}
         </p>
+
+        {% if page_obj.has_other_pages %}
+          <p class="text-sm text-slate-500">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+          </p>
+        {% endif %}
       </div>
 
       <div class="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
@@ -155,6 +167,57 @@
           </div>
         {% endfor %}
       </div>
+
+      {% if page_obj.has_other_pages %}
+        <div class="mt-10 flex flex-col items-center justify-between gap-4 rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-4 sm:flex-row">
+          <div>
+            {% if page_obj.has_previous %}
+              <a
+                href="?page={{ page_obj.previous_page_number }}{% if query %}&query={{ query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}"
+                class="inline-flex rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10"
+              >
+                ← Previous
+              </a>
+            {% else %}
+              <span class="inline-flex cursor-not-allowed rounded-full border border-white/10 bg-white/[0.02] px-5 py-3 text-sm font-bold text-slate-600">
+                ← Previous
+              </span>
+            {% endif %}
+          </div>
+
+          <div class="flex flex-wrap justify-center gap-2">
+            {% for page_number in page_obj.paginator.page_range %}
+              {% if page_number == page_obj.number %}
+                <span class="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-400 text-sm font-black text-slate-950">
+                  {{ page_number }}
+                </span>
+              {% else %}
+                <a
+                  href="?page={{ page_number }}{% if query %}&query={{ query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}"
+                  class="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-sm font-bold text-white transition hover:bg-white/10"
+                >
+                  {{ page_number }}
+                </a>
+              {% endif %}
+            {% endfor %}
+          </div>
+
+          <div>
+            {% if page_obj.has_next %}
+              <a
+                href="?page={{ page_obj.next_page_number }}{% if query %}&query={{ query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}"
+                class="inline-flex rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10"
+              >
+                Next →
+              </a>
+            {% else %}
+              <span class="inline-flex cursor-not-allowed rounded-full border border-white/10 bg-white/[0.02] px-5 py-3 text-sm font-bold text-slate-600">
+                Next →
+              </span>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
     </div>
   </div>
 </section>

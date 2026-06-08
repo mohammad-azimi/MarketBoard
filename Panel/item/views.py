@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -11,6 +12,7 @@ def items(request):
     query = request.GET.get("query", "")
     category_id = request.GET.get("category", "0")
     sort = request.GET.get("sort", "newest")
+    page = request.GET.get("page", 1)
 
     sort_options = {
         "newest": "-created_at",
@@ -23,35 +25,46 @@ def items(request):
     order_by = sort_options.get(sort, "-created_at")
 
     categories = Category.objects.all()
-    items = Item.objects.filter(is_sold=False)
+    items_queryset = Item.objects.filter(is_sold=False)
 
     selected_category_id = 0
 
     if category_id and category_id != "0":
         try:
             selected_category_id = int(category_id)
-            items = items.filter(Category_id=selected_category_id)
+            items_queryset = items_queryset.filter(Category_id=selected_category_id)
         except ValueError:
             selected_category_id = 0
 
     if query:
-        items = items.filter(
+        items_queryset = items_queryset.filter(
             Q(name__icontains=query)
             | Q(description__icontains=query)
             | Q(location__icontains=query)
         )
 
-    items = items.order_by(order_by)
+    items_queryset = items_queryset.order_by(order_by)
+
+    paginator = Paginator(items_queryset, 6)
+
+    try:
+        items_page = paginator.page(page)
+    except PageNotAnInteger:
+        items_page = paginator.page(1)
+    except EmptyPage:
+        items_page = paginator.page(paginator.num_pages)
 
     return render(
         request,
         "item/items.html",
         {
-            "items": items,
+            "items": items_page,
+            "page_obj": items_page,
             "query": query,
             "categories": categories,
             "category_id": selected_category_id,
             "sort": sort,
+            "total_items": paginator.count,
         },
     )
 
