@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
@@ -93,6 +94,10 @@ def new(request):
             item.created_by = request.user
             item.save()
 
+            messages.success(
+                request,
+                "Listing published successfully.",
+            )
             return redirect("item:detail", pk=item.id)
     else:
         form = NewItemForm()
@@ -118,6 +123,10 @@ def edit(request, pk):
         if form.is_valid():
             form.save()
 
+            messages.success(
+                request,
+                "Listing updated successfully.",
+            )
             return redirect("item:detail", pk=item.id)
     else:
         form = EditItemForm(instance=item)
@@ -138,7 +147,13 @@ def delete(request, pk):
     item = get_object_or_404(Item, pk=pk, created_by=request.user)
 
     if request.method == "POST":
+        item_name = item.name
         item.delete()
+
+        messages.success(
+            request,
+            f'"{item_name}" was deleted successfully.',
+        )
         return redirect("dashboard:index")
 
     return render(
@@ -155,6 +170,10 @@ def toggle_favorite(request, pk):
     item = get_object_or_404(Item, pk=pk)
 
     if item.created_by == request.user:
+        messages.warning(
+            request,
+            "You cannot save your own listing.",
+        )
         return redirect("item:detail", pk=pk)
 
     favorite, created = Favorite.objects.get_or_create(
@@ -162,7 +181,16 @@ def toggle_favorite(request, pk):
         item=item,
     )
 
-    if not created:
+    if created:
+        messages.success(
+            request,
+            "Listing saved to your dashboard.",
+        )
+    else:
         favorite.delete()
+        messages.success(
+            request,
+            "Listing removed from saved items.",
+        )
 
     return redirect("item:detail", pk=pk)

@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth import login
 from django.shortcuts import redirect, render
 
@@ -31,6 +32,10 @@ def signup(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
+            messages.success(
+                request,
+                "Account created successfully. Welcome to MarketBoard.",
+            )
             return redirect("item:items")
     else:
         form = SignupForm()

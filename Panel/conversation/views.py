@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -29,6 +30,10 @@ def new(request, item_pk):
     item = get_object_or_404(Item, pk=item_pk)
 
     if item.created_by == request.user:
+        messages.warning(
+            request,
+            "You cannot start a conversation about your own listing.",
+        )
         return redirect("item:detail", pk=item_pk)
 
     conversations = Conversation.objects.filter(item=item).filter(
@@ -36,6 +41,10 @@ def new(request, item_pk):
     )
 
     if conversations.exists():
+        messages.info(
+            request,
+            "You already have a conversation for this listing.",
+        )
         return redirect("conversation:detail", pk=conversations.first().id)
 
     if request.method == "POST":
@@ -51,6 +60,10 @@ def new(request, item_pk):
             conversation_message.created_by = request.user
             conversation_message.save()
 
+            messages.success(
+                request,
+                "Message sent successfully.",
+            )
             return redirect("conversation:detail", pk=conversation.id)
     else:
         form = ConversationMessageForm()
@@ -84,6 +97,10 @@ def detail(request, pk):
 
             conversation.save()
 
+            messages.success(
+                request,
+                "Reply sent successfully.",
+            )
             return redirect("conversation:detail", pk=pk)
     else:
         form = ConversationMessageForm()
