@@ -11,7 +11,7 @@
         Browse available listings
       </h1>
       <p class="mt-4 max-w-2xl text-lg leading-8 text-slate-300">
-        Search items, filter by category, and discover active marketplace listings.
+        Search items, filter by category, sort results, and discover active marketplace listings.
       </p>
     </div>
 
@@ -31,18 +31,33 @@
             id="query"
             name="query"
             value="{{ query }}"
-            placeholder="Search by name or description"
+            placeholder="Search name, description, or location"
             class="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400"
           >
+        </div>
+
+        <div>
+          <label for="sort" class="text-sm font-semibold text-slate-300">Sort by</label>
+          <select
+            id="sort"
+            name="sort"
+            class="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-400"
+          >
+            <option value="newest" {% if sort == "newest" %}selected{% endif %}>Newest first</option>
+            <option value="oldest" {% if sort == "oldest" %}selected{% endif %}>Oldest first</option>
+            <option value="price_low" {% if sort == "price_low" %}selected{% endif %}>Price: low to high</option>
+            <option value="price_high" {% if sort == "price_high" %}selected{% endif %}>Price: high to low</option>
+            <option value="name" {% if sort == "name" %}selected{% endif %}>Name A-Z</option>
+          </select>
         </div>
 
         <input type="hidden" name="category" value="{{ category_id }}">
 
         <button class="w-full rounded-2xl bg-cyan-400 px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-cyan-300">
-          Search Listings
+          Apply Filters
         </button>
 
-        {% if query or category_id %}
+        {% if query or category_id or sort != "newest" %}
           <a href="{% url 'item:items' %}" class="block rounded-2xl border border-white/10 px-5 py-3 text-center text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white">
             Clear Filters
           </a>
@@ -56,7 +71,7 @@
 
         <div class="mt-4 space-y-2">
           <a
-            href="{% url 'item:items' %}{% if query %}?query={{ query }}{% endif %}"
+            href="{% url 'item:items' %}{% if query or sort != 'newest' %}?{% if query %}query={{ query }}{% endif %}{% if query and sort != 'newest' %}&{% endif %}{% if sort != 'newest' %}sort={{ sort }}{% endif %}{% endif %}"
             class="flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-semibold transition {% if category_id == 0 %}bg-cyan-400 text-slate-950{% else %}bg-white/[0.03] text-slate-300 hover:bg-white/10 hover:text-white{% endif %}"
           >
             <span>All categories</span>
@@ -64,7 +79,7 @@
 
           {% for category in categories %}
             <a
-              href="{% url 'item:items' %}?category={{ category.id }}{% if query %}&query={{ query }}{% endif %}"
+              href="{% url 'item:items' %}?category={{ category.id }}{% if query %}&query={{ query }}{% endif %}{% if sort != 'newest' %}&sort={{ sort }}{% endif %}"
               class="flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-semibold transition {% if category.id == category_id %}bg-cyan-400 text-slate-950{% else %}bg-white/[0.03] text-slate-300 hover:bg-white/10 hover:text-white{% endif %}"
             >
               <span>{{ category.name }}</span>
@@ -109,6 +124,18 @@
                 </span>
               </div>
 
+              <div class="mt-4 flex flex-wrap gap-2">
+                <span class="rounded-full bg-white/[0.06] px-3 py-1 text-xs font-semibold text-slate-300">
+                  {{ item.get_condition_display }}
+                </span>
+
+                {% if item.location %}
+                  <span class="rounded-full bg-white/[0.06] px-3 py-1 text-xs font-semibold text-slate-300">
+                    {{ item.location }}
+                  </span>
+                {% endif %}
+              </div>
+
               <p class="mt-4 line-clamp-2 text-sm leading-6 text-slate-400">
                 {% if item.description %}
                   {{ item.description }}
@@ -121,7 +148,7 @@
         {% empty %}
           <div class="col-span-full rounded-[1.5rem] border border-dashed border-white/15 bg-white/[0.03] p-12 text-center">
             <h3 class="text-2xl font-black text-white">No matching listings</h3>
-            <p class="mt-3 text-slate-400">Try changing your search or category filter.</p>
+            <p class="mt-3 text-slate-400">Try changing your search, sort option, or category filter.</p>
             <a href="{% url 'item:items' %}" class="mt-6 inline-flex rounded-full bg-cyan-400 px-6 py-3 text-sm font-bold text-slate-950 transition hover:bg-cyan-300">
               Reset Search
             </a>

@@ -4,7 +4,7 @@
 
 {% block content %}
 <style>
-  .market-form input,
+  .market-form input:not([type="checkbox"]),
   .market-form textarea,
   .market-form select {
     width: 100%;
@@ -16,7 +16,7 @@
     outline: none;
   }
 
-  .market-form input:focus,
+  .market-form input:not([type="checkbox"]):focus,
   .market-form textarea:focus,
   .market-form select:focus {
     border-color: rgb(34, 211, 238);
@@ -64,18 +64,37 @@
       {% endif %}
 
       {% for field in form %}
-        <div>
-          {{ field.label_tag }}
-          {{ field }}
+        {% if field.field.widget.input_type == "checkbox" %}
+          <div class="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
+            <div class="flex items-center gap-3">
+              {{ field }}
+              <label for="{{ field.id_for_label }}" class="!mb-0">
+                {{ field.label }}
+              </label>
+            </div>
 
-          {% if field.help_text %}
-            <span class="helptext">{{ field.help_text }}</span>
-          {% endif %}
+            {% if field.help_text %}
+              <span class="helptext">{{ field.help_text }}</span>
+            {% endif %}
 
-          {% if field.errors %}
-            {{ field.errors }}
-          {% endif %}
-        </div>
+            {% if field.errors %}
+              {{ field.errors }}
+            {% endif %}
+          </div>
+        {% else %}
+          <div>
+            {{ field.label_tag }}
+            {{ field }}
+
+            {% if field.help_text %}
+              <span class="helptext">{{ field.help_text }}</span>
+            {% endif %}
+
+            {% if field.errors %}
+              {{ field.errors }}
+            {% endif %}
+          </div>
+        {% endif %}
       {% endfor %}
 
       <div class="flex flex-col gap-3 pt-2 sm:flex-row">
