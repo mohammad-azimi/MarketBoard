@@ -48,8 +48,14 @@
                   Dashboard
                 </a>
 
-                <a href="{% url 'conversation:inbox' %}" class="rounded-full px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/10 hover:text-white">
+                <a href="{% url 'conversation:inbox' %}" class="relative rounded-full px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/10 hover:text-white">
                   Inbox
+
+                  {% if unread_messages_count %}
+                    <span class="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-cyan-400 px-1.5 text-[10px] font-black text-slate-950">
+                      {{ unread_messages_count }}
+                    </span>
+                  {% endif %}
                 </a>
 
                 <form method="post" action="{% url 'core:logout' %}">
@@ -92,8 +98,14 @@
                     Dashboard
                   </a>
 
-                  <a href="{% url 'conversation:inbox' %}" class="block rounded-2xl px-4 py-3 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white">
-                    Inbox
+                  <a href="{% url 'conversation:inbox' %}" class="flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white">
+                    <span>Inbox</span>
+
+                    {% if unread_messages_count %}
+                      <span class="rounded-full bg-cyan-400 px-2 py-0.5 text-xs font-black text-slate-950">
+                        {{ unread_messages_count }}
+                      </span>
+                    {% endif %}
                   </a>
 
                   <form method="post" action="{% url 'core:logout' %}" class="mt-2">
@@ -163,7 +175,16 @@
 
               {% if request.user.is_authenticated %}
                 <a href="{% url 'dashboard:index' %}" class="hover:text-cyan-300">Dashboard</a>
-                <a href="{% url 'conversation:inbox' %}" class="hover:text-cyan-300">Inbox</a>
+
+                <a href="{% url 'conversation:inbox' %}" class="flex w-fit items-center gap-2 hover:text-cyan-300">
+                  <span>Inbox</span>
+
+                  {% if unread_messages_count %}
+                    <span class="rounded-full bg-cyan-400 px-2 py-0.5 text-xs font-black text-slate-950">
+                      {{ unread_messages_count }}
+                    </span>
+                  {% endif %}
+                </a>
               {% endif %}
             </div>
           </div>
