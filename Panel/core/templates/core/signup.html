@@ -3,42 +3,85 @@
 {% block title %}Sign Up{% endblock %}
 
 {% block content %}
-    <div class="w-1/2 my-6 mx-auto p-6 bg-gray-100 rounded-xl">
-        <h1 class="mb-6 text-3xl">Sign UP</h1>
+<section class="mx-auto grid min-h-[calc(100vh-180px)] max-w-7xl items-center gap-10 px-6 py-14 lg:grid-cols-[0.9fr_1.1fr]">
+  <div>
+    <p class="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300">Create Account</p>
+    <h1 class="mt-4 max-w-2xl text-5xl font-black tracking-tight text-white md:text-6xl">
+      Start selling and managing your listings today.
+    </h1>
+    <p class="mt-6 max-w-xl text-lg leading-8 text-slate-300">
+      Create a MarketBoard account to publish items, edit your listings, and manage everything from a personal dashboard.
+    </p>
 
-        <form method="post" action=".">
-            {% csrf_token %}
+    <div class="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
+      <p class="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-300">What you can do</p>
 
-            <div class="mb-3 ">
-                <label class="inline-block mb-2">Username</label><br>
-                {{ form.username }}
-            </div>
+      <div class="mt-5 grid gap-4">
+        <div class="rounded-2xl bg-slate-950/60 p-4">
+          <p class="font-bold text-white">Publish listings</p>
+          <p class="mt-1 text-sm text-slate-400">Add images, descriptions, prices, and categories.</p>
+        </div>
 
-            <div class="mb-3 ">
-                <label class="inline-block mb-2">Email</label><br>
-                {{ form.email }}
-            </div>
-            
-            <div class="mb-3 ">
-                <label class="inline-block mb-2">Password</label><br>
-                {{ form.password1 }}
-            </div>
+        <div class="rounded-2xl bg-slate-950/60 p-4">
+          <p class="font-bold text-white">Manage items</p>
+          <p class="mt-1 text-sm text-slate-400">Edit or delete your own marketplace ads.</p>
+        </div>
 
-            <div class="mb-3 ">
-                <label class="inline-block mb-2">Repeat Password</label><br>
-                {{ form.password2 }}
-            </div>
-
-            {% if form.errors or form.non_field_errors %}
-            <div class="mb-3 p-6 bg-red-100 rounded-xl">
-                {% for field in form %}
-                    {{ field.errors }}
-                {% endfor %}
-
-                {{ form.non_field_errors }}
-            </div>
-            {% endif %}
-            <button class="py-4 px-8 text-lg bg-teal-500 hover:bg-teal-700 rounded-xl text-white">Submit</button>
-        </form>
+        <div class="rounded-2xl bg-slate-950/60 p-4">
+          <p class="font-bold text-white">Browse marketplace</p>
+          <p class="mt-1 text-sm text-slate-400">Search and filter active listings.</p>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <div class="rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 backdrop-blur">
+    <div>
+      <p class="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300">Account</p>
+      <h2 class="mt-3 text-4xl font-black tracking-tight text-white">Sign Up</h2>
+      <p class="mt-4 text-slate-400">
+        Fill in your details to create a new account.
+      </p>
+    </div>
+
+    <form method="post" action="." class="mt-8 space-y-5">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="rounded-2xl border border-rose-400/30 bg-rose-500/10 p-4 text-sm text-rose-200">
+          {{ form.non_field_errors }}
+        </div>
+      {% endif %}
+
+      {% for field in form %}
+        <div>
+          <label class="mb-2 block text-sm font-bold text-slate-300" for="{{ field.id_for_label }}">
+            {{ field.label }}
+          </label>
+
+          {{ field }}
+
+          {% if field.help_text %}
+            <p class="mt-2 text-xs leading-5 text-slate-500">{{ field.help_text }}</p>
+          {% endif %}
+
+          {% if field.errors %}
+            <div class="mt-2 text-sm text-rose-300">{{ field.errors }}</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+
+      <button class="w-full rounded-full bg-cyan-400 px-7 py-4 text-sm font-bold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300">
+        Create Account
+      </button>
+    </form>
+
+    <p class="mt-6 text-center text-sm text-slate-400">
+      Already have an account?
+      <a href="{% url 'core:login' %}" class="font-semibold text-cyan-300 hover:text-cyan-200">
+        Log in
+      </a>
+    </p>
+  </div>
+</section>
 {% endblock %}
